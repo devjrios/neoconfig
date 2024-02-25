@@ -1,6 +1,6 @@
-local JDK_BASE = vim.env.HOME .. "/.sdkman/candidates/java"
-local JDK17 = JDK_BASE .. "/17.0.10.fx-zulu"
-local JDK8 = JDK_BASE .. "/8.0.402.fx-zulu"
+local JDK_BASE = vim.env.HOME .. "/.jdks"
+local JDK17 = JDK_BASE .. "/17.0.8.1"
+local JDK8 = JDK_BASE .. "/8.0.382"
 
 vim.env.JAVA_HOME = JDK17
 
