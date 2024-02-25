@@ -1,5 +1,15 @@
--- vim.g.node_host_prog = "/home/jrios/.nvm/versions/node/v18.16.1/bin/neovim-node-host"
--- vim.g.python3_host_prog = "/usr/bin/python3"
+local py_interpreter = vim.api.nvim_cmd({
+  cmd = "python",
+  args = { "print(sys.executable)" },
+  mods = { silent = true, emsg_silent = true, noswapfile = true, confirm = true, hide = true, noautocmd = true },
+}, { output = true })
+local node_interpreter = vim.fn.system({ "/usr/bin/env", "node", "-e", "console.log(process.execPath);" })
+
+py_interpreter = string.gsub(py_interpreter, ".[0-9]+$", "")
+vim.g.python3_host_prog = py_interpreter
+vim.g.node_host_prog = node_interpreter
+
+vim.env.PATH = vim.env.PATH .. ":" .. string.gsub(py_interpreter, "/python3$", "")
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
