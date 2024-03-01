@@ -5,6 +5,11 @@ return {
       formatters_by_ft = {
         sql = { "sqlfluff" },
       },
+      formatters = {
+        sqlfluff = {
+          prepend_args = {},
+        },
+      },
     },
   },
   {
