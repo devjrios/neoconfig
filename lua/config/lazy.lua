@@ -1,28 +1,44 @@
-local py_interpreter = vim.api.nvim_cmd({
-  cmd = "python",
-  args = { "print(sys.executable)" },
-  mods = { silent = true, emsg_silent = true, noswapfile = true, confirm = true, hide = true, noautocmd = true },
-}, { output = true })
+function isFileValid(filename)
+    local file = io.open(filename, "r")
+    if file then
+        file:close()
+        return true
+    else
+        return false
+    end
+end
+
+local py_interpreter = vim.fn.system({ "/usr/bin/env", "which", "python3" })
+if py_interpreter == nil or py_interpreter == '' or not isFileValid(py_interpreter) then
+  py_interpreter = vim.api.nvim_cmd({
+    cmd = "python",
+    args = { "print(sys.executable)" },
+    mods = { silent = true, emsg_silent = true, noswapfile = true, confirm = true, hide = true, noautocmd = true },
+  }, { output = true })
+  py_interpreter = string.gsub(py_interpreter, ".[0-9]+$", "")
+end
 local node_interpreter = vim.fn.system({ "/usr/bin/env", "node", "-e", "console.log(process.execPath);" })
 
-py_interpreter = string.gsub(py_interpreter, ".[0-9]+$", "")
 vim.g.python3_host_prog = py_interpreter
 vim.g.node_host_prog = node_interpreter
 
 vim.env.PATH = vim.env.PATH .. ":" .. string.gsub(py_interpreter, "/python3$", "")
 
+vim.env.DOTNET_SYSTEM_GLOBALIZATION_INVARIANT = 1
+
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
   -- bootstrap lazy.nvim
   -- stylua: ignore
-  vim.fn.system({ "git", "clone", "--filter=blob:none", "https://github.com/folke/lazy.nvim.git", "--branch=stable", lazypath })
+  vim.fn.system({ "git", "clone", "--filter=blob:none", "https://github.com/folke/lazy.nvim.git", "--branch=stable",
+    lazypath })
 end
 vim.opt.rtp:prepend(vim.env.LAZY or lazypath)
 
 require("lazy").setup({
   spec = {
     -- add LazyVim and import its plugins
-    { "LazyVim/LazyVim", import = "lazyvim.plugins" },
+    { "LazyVim/LazyVim",                                import = "lazyvim.plugins" },
     -- import any extras modules here
     -- { import = "lazyvim.plugins.extras.lsp.none-ls" },
     { import = "lazyvim.plugins.extras.dap.core" },
