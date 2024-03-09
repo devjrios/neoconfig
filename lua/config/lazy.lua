@@ -1,28 +1,24 @@
-function isFileValid(filename)
-    local file = io.open(filename, "r")
-    if file then
-        file:close()
-        return true
-    else
-        return false
-    end
-end
-
-local py_interpreter = vim.fn.system({ "/usr/bin/env", "which", "python3" })
-if py_interpreter == nil or py_interpreter == '' or not isFileValid(py_interpreter) then
+local py_interpreter_exists = (vim.fn.executable("python3") == 1)
+local py_interpreter
+if not py_interpreter_exists then
   py_interpreter = vim.api.nvim_cmd({
     cmd = "python",
     args = { "print(sys.executable)" },
     mods = { silent = true, emsg_silent = true, noswapfile = true, confirm = true, hide = true, noautocmd = true },
   }, { output = true })
-  py_interpreter = string.gsub(py_interpreter, ".[0-9]+$", "")
+else
+  py_interpreter = vim.fn.system({ "/usr/bin/env", "python3", "-c", "import sys;print(sys.executable)" })
 end
-local node_interpreter = vim.fn.system({ "/usr/bin/env", "node", "-e", "console.log(process.execPath);" })
 
+py_interpreter = string.gsub(py_interpreter, ".[0-9]+$", "")
 vim.g.python3_host_prog = py_interpreter
-vim.g.node_host_prog = node_interpreter
-
 vim.env.PATH = vim.env.PATH .. ":" .. string.gsub(py_interpreter, "/python3$", "")
+
+local node_interpreter_exists = (vim.fn.executable("node") == 1)
+if node_interpreter_exists then
+  local node_interpreter = vim.fn.system({ "/usr/bin/env", "node", "-e", "console.log(process.execPath);" })
+  vim.g.node_host_prog = node_interpreter
+end
 
 vim.env.DOTNET_SYSTEM_GLOBALIZATION_INVARIANT = 1
 
